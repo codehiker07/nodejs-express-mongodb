@@ -28,8 +28,11 @@ const dataObj = JSON.parse(data);
 // Create Server
 const server = http.createServer((req, res) => {
   // res.end('Hello From Server')
-  const pathName = req.url;
-  if (pathName === "/" || pathName === "/overview") {
+  
+//   const pathname = req.url;
+  const { query, pathname } = url.parse(req.url, true)
+
+  if (pathname === "/" || pathname === "/overview") {
     res.writeHead(200, {
       "Content-type": "text/html",
     });
@@ -38,7 +41,7 @@ const server = http.createServer((req, res) => {
       .join("");
     const output = tempOverview.replace("{%PRODUCT_CARDS%}", cardsHtml);
     res.end(output);
-  } else if (pathName === "/product") {
+  } else if (pathname === "/product") {
     res.writeHead(200, {
       "Content-type": "text/html",
     });
@@ -47,11 +50,13 @@ const server = http.createServer((req, res) => {
     res.end(output);
   }
   // Create Route for API
-  else if (pathName === "/api") {
+  else if (pathname === "/api") {
     res.writeHead(200, {
         'Content-type' : 'application/json'
     })
-    res.end(data);
+    const product = dataObj[query.id]
+    const output = replaceTemplate(tempProduct, product)
+    res.end(output);
   }
   // Create Route for 404 Error
   else {
